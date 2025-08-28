@@ -17,9 +17,9 @@ import {
 /**
  * Helper: Run Python Whisper as Promise
  */
-const runWhisper = (filePath: string): Promise<string> => {
+const runWhisper = (filePath: string, model: string, language: string): Promise<string> => {
   return new Promise((resolve, reject) => {
-    const python = spawn("python3", ["transcribe.py", filePath]);
+    const python = spawn("python3", ["transcribe.py", filePath, model, language]);
     let transcript = "";
 
     python.stdout.on("data", (data) => (transcript += data.toString()));
@@ -70,7 +70,9 @@ export const uploadAndTranscribe = async (
     }
 
     const tempPath = req.file.path;
-    const transcription = await runWhisper(tempPath);
+    const model = req.body.model || "small"; 
+    const language = req.body.language || "en"; 
+    const transcription = await runWhisper(tempPath, model, language);
 
     res.status(HTTP_STATUS.OK).json({
       success: true,
